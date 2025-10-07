@@ -8,13 +8,15 @@
   "task": {
     "user_id": "45",
     "instruction": "You are Samuel Holmes (email: samuel.holmes@gmail.com), a Fund Manager. You need to execute a buy trade for 1,000 shares of Washington PLC Ltd stock (DQX8) at $150.50 per share for the 'Hudson-Barnett Value Fund' that you manage. Jeffrey Doyle, a finance officer, has provided the necessary authorization.",
-    "actions": [
+      "actions": [
       {
         "name": "find_user_entities",
         "arguments": {
           "entity_type": "users",
           "filters": {
-            "email": "samuel.holmes@gmail.com"
+            "first_name": "Samuel",
+            "last_name": "Holmes",
+            "role": "fund_manager"
           }
         },
         "output": {
@@ -41,23 +43,14 @@
         "arguments": {
           "entity_type": "funds",
           "filters": {
+            "name": "Hudson-Barnett Value Fund",
             "manager_id": "45"
           }
         },
         "output": {
-          "count": 4,
+          "count": 1,
           "entity_type": "funds",
           "results": [
-            {
-              "created_at": "2023-11-03T23:57:37",
-              "fund_id": "6",
-              "fund_type": "money_market_funds",
-              "manager_id": "45",
-              "name": "Rogers-Orozco Strategic Fund",
-              "size": 176553453.28,
-              "status": "open",
-              "updated_at": "2024-05-04T03:14:14"
-            },
             {
               "created_at": "2023-08-30T23:07:50",
               "fund_id": "36",
@@ -67,26 +60,6 @@
               "size": 206410899.8,
               "status": "open",
               "updated_at": "2025-04-04T21:01:20"
-            },
-            {
-              "created_at": "2022-11-04T22:42:20",
-              "fund_id": "52",
-              "fund_type": "money_market_funds",
-              "manager_id": "45",
-              "name": "Wilson-Jones Income Fund",
-              "size": 434931239.93,
-              "status": "closed",
-              "updated_at": "2023-12-02T03:46:55"
-            },
-            {
-              "created_at": "2025-06-29T17:06:44",
-              "fund_id": "98",
-              "fund_type": "mutual_funds",
-              "manager_id": "45",
-              "name": "James, Stewart and Higgins Growth Fund",
-              "size": 122540879.68,
-              "status": "open",
-              "updated_at": "2025-08-10T10:19:06"
             }
           ],
           "success": true
@@ -119,11 +92,11 @@
         "name": "validate_approval",
         "arguments": {
           "action": "trade_execution",
-          "requester_email": "samuel.holmes@gmail.com"
+          "requester_email": "jeffrey.doyle@investment.com"
         },
         "output": {
           "approval_valid": true,
-          "message": "Role 'fund_manager' is directly authorized for action 'trade_execution'"
+          "message": "Role 'trader' is directly authorized for action 'trade_execution'"
         }
       },
       {
@@ -173,117 +146,101 @@
         }
       }
     ],
-    "outputs": [
-      "2501",
-      "4",
-      "3501"
-    ],
-      "edges": [
-          {
-              "from": "instruction",
-              "to": "find_user_entities",
-              "connection": {
-                  "output": "email",
-                  "input": "filters.email"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "find_user_entities",
-              "connection": {
-                  "output": "entity_type",
-                  "input": "entity_type"
-              }
-          },
-          {
-              "from": "find_user_entities",
-              "to": "find_fund_entities",
-              "connection": {
-                  "output": "results[0].user_id",
-                  "input": "filters.manager_id"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "find_fund_entities",
-              "connection": {
-                  "output": "entity_type",
-                  "input": "entity_type"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "find_instrument_entities",
-              "connection": {
-                  "output": "ticker",
-                  "input": "filters.ticker"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "find_instrument_entities",
-              "connection": {
-                  "output": "entity_type",
-                  "input": "entity_type"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "validate_approval",
-              "connection": {
-                  "output": "action, requester_email",
-                  "input": "action, requester_email"
-              }
-          },
-          {
-              "from": "find_fund_entities",
-              "to": "conduct_trade",
-              "connection": {
-                  "output": "results[1].fund_id",
-                  "input": "fund_id"
-              }
-          },
-          {
-              "from": "find_instrument_entities",
-              "to": "conduct_trade",
-              "connection": {
-                  "output": "results[0].instrument_id",
-                  "input": "instrument_id"
-              }
-          },
-          {
-              "from": "validate_approval",
-              "to": "conduct_trade",
-              "connection": {
-                  "output": "approval_valid",
-                  "input": "fund_manager_approval"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "conduct_trade",
-              "connection": {
-                  "output": "price, quantity, side, trade_date",
-                  "input": "price, quantity, side, trade_date"
-              }
-          },
-          {
-              "from": "conduct_trade",
-              "to": "register_new_audit_trail",
-              "connection": {
-                  "output": "trade_id",
-                  "input": "reference_id"
-              }
-          },
-          {
-              "from": "instruction",
-              "to": "register_new_audit_trail",
-              "connection": {
-                  "output": "action, reference_type",
-                  "input": "action, reference_type"
-              }
-          }
-      ],
-      "num_edges": 13
+        "outputs": [
+          "2501",
+          "4",
+          "3501"
+         ],
+            "edges": [
+      {
+        "from": "instruction",
+        "to": "find_user_entities",
+        "connection": {
+          "output": "first_name, last_name, role",
+          "input": "filters.first_name, filters.last_name, filters.role"
+        }
+      },
+      {
+        "from": "instruction",
+        "to": "find_fund_entities",
+        "connection": {
+          "output": "fund_name",
+          "input": "filters.name"
+        }
+      },
+      {
+        "from": "find_user_entities",
+        "to": "find_fund_entities",
+        "connection": {
+          "output": "results[0].user_id",
+          "input": "filters.manager_id"
+        }
+      },
+      {
+        "from": "instruction",
+        "to": "find_instrument_entities",
+        "connection": {
+          "output": "ticker",
+          "input": "filters.ticker"
+        }
+      },
+      {
+        "from": "instruction",
+        "to": "validate_approval",
+        "connection": {
+          "output": "action, requester_email",
+          "input": "action, requester_email"
+        }
+      },
+      {
+        "from": "find_fund_entities",
+        "to": "conduct_trade",
+        "connection": {
+          "output": "results[0].fund_id",
+          "input": "fund_id"
+        }
+      },
+      {
+        "from": "find_instrument_entities",
+        "to": "conduct_trade",
+        "connection": {
+          "output": "results[0].instrument_id",
+          "input": "instrument_id"
+        }
+      },
+      {
+        "from": "instruction",
+        "to": "conduct_trade",
+        "connection": {
+          "output": "price, quantity, side, trade_date",
+          "input": "price, quantity, side, trade_date"
+        }
+      },
+      {
+        "from": "validate_approval",
+        "to": "conduct_trade",
+        "connection": {
+          "output": "approval_valid",
+          "input": "fund_manager_approval"
+        }
+      },
+      {
+        "from": "instruction",
+        "to": "register_new_audit_trail",
+        "connection": {
+          "output": "action, reference_type",
+          "input": "action, reference_type"
+        }
+      },
+      {
+        "from": "conduct_trade",
+        "to": "register_new_audit_trail",
+        "connection": {
+          "output": "trade_id",
+          "input": "reference_id"
+        }
       }
-}
+    ],
+    "num_edges": 11
+        }
+  }
